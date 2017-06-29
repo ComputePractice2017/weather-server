@@ -1,7 +1,7 @@
 package main
 
-import "log"
+import "github.com/ComputePractice2017/weather-server/api"
 
 func main() {
-	log.Println("Hello World!")
+	api.Run()
 }
