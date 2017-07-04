@@ -37,7 +37,7 @@ func getAllWeatherDataHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json; charset-UTF-8")
 	w.WriteHeader(http.StatusOK)
 }
-
+/*
 func newWeatherHandler(w http.ResponseWriter, r *http.Request) {
 	//var weather model.WeatherData
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
@@ -88,8 +88,15 @@ func newWeatherHandler(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 	}
-	//
+	//Стандартный пакет для скачивания файлов 
+	//Потом разархивировать unzip(examples)
+	//strconf
+	//Разархивировать один раз в сутки
+	//Два приложения
+	//Первое приложение загрузку из файла в базу данных
+	//NewHandle
 
+	//передовать параметры запроса
 	if err := json.Unmarshal(body, &weat); err != nil {
 		w.WriteHeader(http.StatusUnprocessableEntity)
 		if err := json.NewEncoder(w).Encode(err); err != nil {
@@ -110,3 +117,4 @@ func newWeatherHandler(w http.ResponseWriter, r *http.Request) {
 		log.Println(err)
 	}
 }
+*/
