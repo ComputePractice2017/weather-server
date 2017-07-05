@@ -104,9 +104,10 @@ func newWeatherHandler(filepath string) {
 	csvFile, _ := os.Open(filepath)
 	reader := csv.NewReader(bufio.NewReader(csvFile))
 	reader.Comma = ';'
-	var weat []model.WeatherData
+	var weat model.WeatherData
 	fmt.Println("Я тут")
-	for {
+	
+	for {		
 		line, error := reader.Read()
 		if error == io.EOF {
 			break
@@ -131,7 +132,7 @@ func newWeatherHandler(filepath string) {
 		temperaturesurface, err := strconv.ParseFloat(line[10], 64)
 		airtemperature, err := strconv.ParseFloat(line[11], 64)
 				
-		weat = append(weat, model.WeatherData{
+		weat =  model.WeatherData{
 			//ID:                  line[0],
 			DateBegin:           line[0],
 			Date:                line[1],
@@ -145,7 +146,7 @@ func newWeatherHandler(filepath string) {
 			Rainfall:            rainfall,
 			TemperatureSurface:  temperaturesurface,
 			AirTemperature:      airtemperature,
-		})
+		}
 	}
 	//
 	
@@ -167,13 +168,10 @@ func newWeatherHandler(filepath string) {
 	}
 	}
  //Этот код из другой функции
- func newWeatherData(w []model.WeatherData) ([]model.WeatherData, error){
+ func newWeatherData(w model.WeatherData) (model.WeatherData, error){
 	session, err := r.Connect(r.ConnectOpts{
 		Address: "localhost",
 	})
-	if err != nil {
-		return nil, err
-	}
 	res, err := r.UUID().Run(session)
 	if err != nil {
 		return w, err
@@ -185,15 +183,12 @@ func newWeatherHandler(filepath string) {
 	if err != nil {
 		return w, err
 	}
-	for i:=0;i<len(w);i++ {
-		w[i].ID = UUID
-	res, err = r.DB("weather").Table("weather").Insert(w[i]).Run(session)
-}
 	
+		w.ID = UUID
+	res, err = r.DB("weather").Table("weather").Insert(w).Run(session)
 	if err != nil {
 		return w, err
 	}
-	//
 	return w, nil
 }
  
