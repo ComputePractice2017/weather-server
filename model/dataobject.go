@@ -32,15 +32,19 @@ func InitSession() error {
 }
 
 //GetData is a simple storage of weathers
-func GetData() ([]WeatherData, error) {
+func GetData(long, lat float64) ([]WeatherData, error) {
 	session, err := r.Connect(r.ConnectOpts{
 		Address: "localhost",
 	})
+
 	if err != nil {
 		return nil, err
 	}
 
-	res, err := r.DB("weather").Table("weather").Run(session)
+	var Base = r.Point(long, lat);
+	res, err := r.DB("weather").GetNearest(Base, r.GetNearestOpts{Index: "location", MaxResults: 1}).Run(session)
+
+	//res, err := r.DB("weather").Table("weather").Run(session)
 	if err != nil {
 		return nil, err
 	}

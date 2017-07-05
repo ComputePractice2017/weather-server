@@ -1,18 +1,20 @@
 package api
 
 import (
-	"encoding/csv"
-	"fmt"
-	"io"
-	"io/ioutil"
+	//"encoding/csv"
+	//"fmt"
+	//"io"
+	//"io/ioutil"
 	"net/http"
 	//"github.com/gorilla/mux"
-	"bufio"
+	//"bufio"
 	"encoding/json"
 	"log"
-	"os"
-
+	//"os"
+	"strconv"
 	"github.com/ComputePractice2017/weather-server/model"
+	"github.com/gorilla/mux"
+	"fmt"
 )
 
 func helloWorldHandler(w http.ResponseWriter, r *http.Request) {
@@ -21,8 +23,11 @@ func helloWorldHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func getAllWeatherDataHandler(w http.ResponseWriter, r *http.Request) {
-	data, err := model.GetData()
-
+	w.Header().Set("Content-Type", "application/json; charset-UTF-8")
+	vars := mux.Vars(r)
+	lat := strconv.ParseFloat(r["lat"], 64)
+	long := strconv.ParseFloat(r["long"], 64)
+	data, err := model.GetData(long, lat)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		log.Println(err)
@@ -34,7 +39,7 @@ func getAllWeatherDataHandler(w http.ResponseWriter, r *http.Request) {
 		log.Println(err)
 		return
 	}
-	w.Header().Set("Content-Type", "application/json; charset-UTF-8")
+	
 	w.WriteHeader(http.StatusOK)
 }
 /*

@@ -19,7 +19,7 @@ func Run() {
 	log.Println("Connected")
 	r := mux.NewRouter()
 	r.HandleFunc("/", helloWorldHandler).Methods("GET")
-	r.HandleFunc("/Data", getAllWeatherDataHandler).Methods("POST")
+	r.HandleFunc("/Data/{lat}/{long}", getAllWeatherDataHandler).Methods("GET")
 	log.Println("Running the server on port 8000...")
 	http.ListenAndServe(":8000", r)
 }
