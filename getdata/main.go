@@ -5,7 +5,7 @@ import (
 	"archive/zip"
 	"io"
 	"os"
-	//"time"
+	"time"
 	"path/filepath"
 	"github.com/ComputePractice2017/weather-server/model"
 	"bufio"
@@ -21,20 +21,32 @@ import (
 func main() {
 	log.Print("Hello World. I will can to get file")
 	//Download file
-	/*for {
-	err := downloadFile("./weatherdata.zip","http://djbelyak.ru/share/RU_Hydrometcentre_42.ASCII_ZIP.zip.")
+	for {
+	err := downloadFile("./RU_Hydrometcentre_42.ASCII_ZIP.zip","http://djbelyak.ru/share/RU_Hydrometcentre_42.ASCII_ZIP.zip")
 	if err != nil {
 		panic(err)
-	}*/
+	}
 	log.Println("Downloading is good")
-	err := unzip("./Hydra.zip","./Hydra")
+	err = unzip("./RU_Hydrometcentre_42.ASCII_ZIP.zip","./RU_Hydrometcentre_42.ASCII_ZIP")
 	if err != nil {
 		log.Println(err)
 	}
-	newWeatherHandler("./Hydra/Hydra.txt")
-	//time.Sleep(24 * time.Hour)
+	newWeatherHandler("./RU_Hydrometcentre_42.ASCII_ZIP/RU_Hydrometcentre_42_1.txt")
+	newWeatherHandler("./RU_Hydrometcentre_42.ASCII_ZIP/RU_Hydrometcentre_42_2.txt")
+	newWeatherHandler("./RU_Hydrometcentre_42.ASCII_ZIP/RU_Hydrometcentre_42_3.txt")
+	newWeatherHandler("./RU_Hydrometcentre_42.ASCII_ZIP/RU_Hydrometcentre_42_4.txt")
+	newWeatherHandler("./RU_Hydrometcentre_42.ASCII_ZIP/RU_Hydrometcentre_42_5.txt")
+	newWeatherHandler("./RU_Hydrometcentre_42.ASCII_ZIP/RU_Hydrometcentre_42_6.txt")
+	newWeatherHandler("./RU_Hydrometcentre_42.ASCII_ZIP/RU_Hydrometcentre_42_7.txt")
+	newWeatherHandler("./RU_Hydrometcentre_42.ASCII_ZIP/RU_Hydrometcentre_42_8.txt")
+	newWeatherHandler("./RU_Hydrometcentre_42.ASCII_ZIP/RU_Hydrometcentre_42_9.txt")
+	newWeatherHandler("./RU_Hydrometcentre_42.ASCII_ZIP/RU_Hydrometcentre_42_10.txt")
+	newWeatherHandler("./RU_Hydrometcentre_42.ASCII_ZIP/RU_Hydrometcentre_42_11.txt")
+	newWeatherHandler("./RU_Hydrometcentre_42.ASCII_ZIP/RU_Hydrometcentre_42_12.txt")
+	time.Sleep(24 * time.Hour)
 	log.Println("Unpacking is good")
-	}
+}
+}
 
 //Download the file from site
 func downloadFile(filepath string, url string) (err error) {
