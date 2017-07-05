@@ -5,7 +5,7 @@ import (
 	"archive/zip"
 	"io"
 	"os"
-	"time"
+	//"time"
 	"path/filepath"
 	"github.com/ComputePractice2017/weather-server/model"
 	"bufio"
@@ -15,6 +15,7 @@ import (
 
 import (
 	r "gopkg.in/gorethink/gorethink.v3"
+	"fmt"
 )
 //The main function
 func main() {
@@ -26,13 +27,12 @@ func main() {
 		panic(err)
 	}*/
 	log.Println("Downloading is good")
-	err := unzip("./Hyndra.zip","./")
+	err := unzip("./Hydra.zip","./Hydra")
 	if err != nil {
-		panic(err)
+		log.Println(err)
 	}
-	newWeatherHandler("./Hyndra/Hyndra.txt")
-	//newWeatherHandler(http.ResponseWriter, http.Request);
-	time.Sleep(24 * time.Hour)
+	newWeatherHandler("./Hydra/Hydra.txt")
+	//time.Sleep(24 * time.Hour)
 	log.Println("Unpacking is good")
 	}
 
@@ -63,6 +63,7 @@ func downloadFile(filepath string, url string) (err error) {
 }
 //Unzip the file from target
 func unzip(archive, target string) error {
+	log.Println(archive)
 	reader, err := zip.OpenReader(archive)
 	if err != nil {
 		return err
@@ -71,7 +72,6 @@ func unzip(archive, target string) error {
 	if err := os.MkdirAll(target, 0755); err != nil {
 		return err
 	}
-
 	for _, file := range reader.File {
 		path := filepath.Join(target, file.Name)
 		if file.FileInfo().IsDir() {
@@ -79,7 +79,6 @@ func unzip(archive, target string) error {
 			continue
 		}
 	
-
 		fileReader, err := file.Open()
 		if err != nil {
 			return err
@@ -101,10 +100,12 @@ func unzip(archive, target string) error {
 }
 //Записываем файлы в базу
 func newWeatherHandler(filepath string) {
-
+    fmt.Println("Запись в базу началась")
 	csvFile, _ := os.Open(filepath)
 	reader := csv.NewReader(bufio.NewReader(csvFile))
+	reader.Comma = ';'
 	var weat []model.WeatherData
+	fmt.Println("Я тут")
 	for {
 		line, error := reader.Read()
 		if error == io.EOF {
@@ -112,24 +113,28 @@ func newWeatherHandler(filepath string) {
 		} else if error != nil {
 			log.Fatal(error)
 		}
-		mask, err := strconv.ParseInt(line[3], 10, 64)
+		log.Println(line, len(line))
+		mask, err := strconv.ParseInt(line[2], 10, 64)
 			if err != nil {
 			log.Println(err)
 		}
-		latitude, err := strconv.ParseFloat(line[4], 64)
-		longitude, err := strconv.ParseFloat(line[5], 64)
-		windzonal, err := strconv.ParseFloat(line[6], 64)
-		windmeridional, err := strconv.ParseFloat(line[7], 64)
-		atmosphericpressure, err := strconv.ParseInt(line[8], 10, 64)
-		humidity, err := strconv.ParseInt(line[9], 10, 64)
-		rainfall, err := strconv.ParseFloat(line[10], 64)
-		temperaturesurface, err := strconv.ParseFloat(line[11], 64)
-		airtemperature, err := strconv.ParseFloat(line[12], 64)
+		latitude, err := strconv.ParseFloat(line[3], 64)
+		if err != nil {
+			log.Println(err)
+		}
+		longitude, err := strconv.ParseFloat(line[4], 64)
+		windzonal, err := strconv.ParseFloat(line[5], 64)
+		windmeridional, err := strconv.ParseFloat(line[6], 64)
+		atmosphericpressure, err := strconv.ParseInt(line[7], 10, 64)
+		humidity, err := strconv.ParseInt(line[8], 10, 64)
+		rainfall, err := strconv.ParseFloat(line[9], 64)
+		temperaturesurface, err := strconv.ParseFloat(line[10], 64)
+		airtemperature, err := strconv.ParseFloat(line[11], 64)
 				
 		weat = append(weat, model.WeatherData{
-			ID:                  line[0],
-			DateBegin:           line[1],
-			Date:                line[2],
+			//ID:                  line[0],
+			DateBegin:           line[0],
+			Date:                line[1],
 			Mask:                mask,
 			Latitude:            latitude,
 			Longitude:           longitude,
