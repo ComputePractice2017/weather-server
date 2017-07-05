@@ -161,6 +161,7 @@ func newWeatherHandler(filepath string) {
 			AirTemperature:      airtemperature,
 		}
 	}
+	
 	//
 	
 	//Стандартный пакет для скачивания файлов 

@@ -33,6 +33,7 @@ func getAllWeatherDataHandler(w http.ResponseWriter, r *http.Request) {
 		log.Println(err)
 		return
 	}
+	
 
 	if err = json.NewEncoder(w).Encode(data); err != nil {
 		w.WriteHeader(http.StatusInternalServerError)

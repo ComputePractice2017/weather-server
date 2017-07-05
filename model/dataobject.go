@@ -21,6 +21,7 @@ type WeatherData struct {
 	AirTemperature      float64 `json:"airTemperature",gorethink:"airTemperature"`
 }
 
+
 var session *r.Session
 
 func InitSession() error {

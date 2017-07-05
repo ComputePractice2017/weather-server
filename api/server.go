@@ -16,6 +16,7 @@ func Run() {
 	if err != nil {
 		log.Fatal(err)
 	}
+	
 	log.Println("Connected")
 	r := mux.NewRouter()
 	r.HandleFunc("/", helloWorldHandler).Methods("GET")
