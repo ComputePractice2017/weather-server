@@ -53,7 +53,7 @@ func GetData(lat, long float64) ([]Wrapper, error) {
 	var Base = r.Point(lat, long)
 	log.Println(lat, long)
 	//Зпрос на выборку приближенных значений из базы данных
-	res, err := r.DB("weather").Table("weather").GetNearest(Base, r.GetNearestOpts{Index: "Location"}).Run(session)
+	res, err := r.DB("weather").Table("weather").GetNearest(Base, r.GetNearestOpts{Index: "Location", MaxResults: 1}).Run(session)
 	
 	//res, err := r.DB("weather").Table("weather").Run(session)
 	if err != nil {
