@@ -25,17 +25,35 @@ func helloWorldHandler(w http.ResponseWriter, r *http.Request) {
 func getAllWeatherDataHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json; charset-UTF-8")
 	vars := mux.Vars(r)
-	lat := strconv.ParseFloat(r["lat"], 64)
-	long := strconv.ParseFloat(r["long"], 64)
-	data, err := model.GetData(long, lat)
+	lat, err := strconv.ParseFloat(vars["lat"], 64)
 	if err != nil {
+		log.Println("1")
 		w.WriteHeader(http.StatusInternalServerError)
 		log.Println(err)
 		return
 	}
-	
+	long, err := strconv.ParseFloat(vars["long"], 64)
+	if err != nil {
+		log.Println("1")
+		w.WriteHeader(http.StatusInternalServerError)
+		log.Println(err)
+		return
+	}
+	data, err := model.GetData(lat, long)
+	if err != nil {
+		log.Println("1")
+		w.WriteHeader(http.StatusInternalServerError)
+		log.Println(err)
+		return
+	}
 
-	if err = json.NewEncoder(w).Encode(data); err != nil {
+	var newdata []model.WeatherData
+	for _, item := range (data) {
+		newdata = append(newdata, item.Doc)
+	}
+
+	if err = json.NewEncoder(w).Encode(newdata); err != nil {
+		log.Println("1")
 		w.WriteHeader(http.StatusInternalServerError)
 		log.Println(err)
 		return

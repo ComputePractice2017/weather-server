@@ -16,13 +16,18 @@ import (
 import (
 	r "gopkg.in/gorethink/gorethink.v3"
 	"fmt"
+	"gopkg.in/gorethink/gorethink.v3/types"
 )
 //The main function
 func main() {
+	InitSesson()
+	CreateDBIfNotExist()
+	CreateTableIfNotExist()
 	log.Print("Hello World. I will can to get file")
 	//Download file
 	for {
-	err := downloadFile("./RU_Hydrometcentre_42.ASCII_ZIP.zip","http://djbelyak.ru/share/RU_Hydrometcentre_42.ASCII_ZIP.zip")
+	//err := downloadFile("./RU_Hydrometcentre_42.ASCII_ZIP.zip","http://djbelyak.ru/share/RU_Hydrometcentre_42.ASCII_ZIP.zip")
+	err := downloadFile("./RU_Hydrometcentre_42.ASCII_ZIP.zip","http://djbelyak.ru/share/Hydra.zip")
 	if err != nil {
 		panic(err)
 	}
@@ -31,6 +36,8 @@ func main() {
 	if err != nil {
 		log.Println(err)
 	}
+	newWeatherHandler("./RU_Hydrometcentre_42.ASCII_ZIP/Hydra.txt")
+	/*
 	newWeatherHandler("./RU_Hydrometcentre_42.ASCII_ZIP/RU_Hydrometcentre_42_1.txt")
 	newWeatherHandler("./RU_Hydrometcentre_42.ASCII_ZIP/RU_Hydrometcentre_42_2.txt")
 	newWeatherHandler("./RU_Hydrometcentre_42.ASCII_ZIP/RU_Hydrometcentre_42_3.txt")
@@ -42,12 +49,86 @@ func main() {
 	newWeatherHandler("./RU_Hydrometcentre_42.ASCII_ZIP/RU_Hydrometcentre_42_9.txt")
 	newWeatherHandler("./RU_Hydrometcentre_42.ASCII_ZIP/RU_Hydrometcentre_42_10.txt")
 	newWeatherHandler("./RU_Hydrometcentre_42.ASCII_ZIP/RU_Hydrometcentre_42_11.txt")
-	newWeatherHandler("./RU_Hydrometcentre_42.ASCII_ZIP/RU_Hydrometcentre_42_12.txt")
+	*/
 	time.Sleep(24 * time.Hour)
 	log.Println("Unpacking is good")
 }
 }
 
+var session *r.Session
+func InitSesson() error {
+	dbaddress := os.Getenv("RETHINKDB_HOST")
+	if dbaddress == "" {
+		dbaddress = "localhost"
+	}
+
+	log.Printf("RETHINKDB_HOST: %s\n", dbaddress)
+	var err error
+	session, err = r.Connect(r.ConnectOpts{
+		Address: dbaddress,
+	})
+	if err != nil {
+		return err
+	}
+
+	err = CreateDBIfNotExist()
+	if err != nil {
+		return err
+	}
+
+	err = CreateTableIfNotExist()
+
+	return err
+}
+func CreateDBIfNotExist() error {
+	res, err := r.DBList().Run(session)
+	if err != nil {
+		return err
+	}
+
+	var dbList []string
+	err = res.All(&dbList)
+	if err != nil {
+		return err
+	}
+
+	for _, item := range dbList {
+		if item == "weather" {
+			return nil
+		}
+	}
+
+	_, err = r.DBCreate("weather").Run(session)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func CreateTableIfNotExist() error {
+	res, err := r.DB("weather").TableList().Run(session)
+	if err != nil {
+		return err
+	}
+
+	var tableList []string
+	err = res.All(&tableList)
+	if err != nil {
+		return err
+	}
+
+	for _, item := range tableList {
+		if item == "weather" {
+			return nil
+		}
+	}
+
+	_, err = r.DB("weather").TableCreate("weather", r.TableCreateOpts{PrimaryKey: "ID"}).Run(session)
+	r.DB("weather").Table("weather").IndexCreate("Location", r.IndexCreateOpts{Geo: true}).Run(session)
+
+	return err
+}
 //Download the file from site
 func downloadFile(filepath string, url string) (err error) {
   // Create the file
@@ -145,13 +226,12 @@ func newWeatherHandler(filepath string) {
 		airtemperature, err := strconv.ParseFloat(line[11], 64)
 				
 		weat =  model.WeatherData{
-			//ID:                  line[0],
 			DateBegin:           line[0],
 			Date:                line[1],
 			Mask:                mask,
-			//Latitude:            latitude,
-			//Longitude:           longitude,
-			Location: r.Point(latitude, longitude),
+			Location: 			types.Point{Lat: latitude, Lon: longitude},
+			//Latitude: 		     latitude,
+			//Longitude: 			 longitude,
 			WindZonal:           windzonal,
 			WindMeridional:      windmeridional,
 			AtmosphericPressure: atmosphericpressure,
@@ -160,6 +240,14 @@ func newWeatherHandler(filepath string) {
 			TemperatureSurface:  temperaturesurface,
 			AirTemperature:      airtemperature,
 		}
+		weat, err = newWeatherData(weat)
+		if err != nil {
+			//w.WriteHeader(http.StatusInternalServerError)
+			log.Println(err)
+			return
+		}
+
+		
 	}
 	
 	//
@@ -174,12 +262,7 @@ func newWeatherHandler(filepath string) {
 
 	//передовать параметры запроса
 	
-	weat, err := newWeatherData(weat)
-	if err != nil {
-		//w.WriteHeader(http.StatusInternalServerError)
-		log.Println(err)
-		return
-	}
+	
 	}
  //Этот код из другой функции
  func newWeatherData(w model.WeatherData) (model.WeatherData, error){
@@ -199,10 +282,11 @@ func newWeatherHandler(filepath string) {
 	}
 	
 		w.ID = UUID
+	
+
 	res, err = r.DB("weather").Table("weather").Insert(w).Run(session)
 	if err != nil {
 		return w, err
 	}
 	return w, nil
 }
- 
